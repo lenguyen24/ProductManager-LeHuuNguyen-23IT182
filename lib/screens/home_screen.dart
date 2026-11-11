@@ -24,19 +24,20 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
   String _searchQuery = '';
   String _sortBy = 'name_asc'; // name_asc, name_desc, price_asc, price_desc, qty_desc, qty_asc
+
+  // Khởi tạo stream 1 lần duy nhất trong initState để không bị re-subscribe khi build lại UI
+  late final Stream<List<Product>> _productsStream;
 
   final currencyFormatter = NumberFormat.currency(locale: 'vi_VN', symbol: '₫');
 
   @override
   void initState() {
     super.initState();
-    _searchController.addListener(() {
-      setState(() {
-        _searchQuery = _searchController.text.trim().toLowerCase();
-      });
-    });
+    _productsStream = ProductService().getProductsStream();
+    _searchController.addListener(_onSearchChanged);
 
     if (widget.autoOpenAdd) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -49,9 +50,20 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void _onSearchChanged() {
+    final newQuery = _searchController.text.trim().toLowerCase();
+    if (_searchQuery != newQuery) {
+      setState(() {
+        _searchQuery = newQuery;
+      });
+    }
+  }
+
   @override
   void dispose() {
+    _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
+    _searchFocusNode.dispose();
     super.dispose();
   }
 
@@ -199,10 +211,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
     switch (_sortBy) {
       case 'name_asc':
-        list.sort((a, b) => a.name.compareTo(b.name));
+        list.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
         break;
       case 'name_desc':
-        list.sort((a, b) => b.name.compareTo(a.name));
+        list.sort((a, b) => b.name.toLowerCase().compareTo(a.name.toLowerCase()));
         break;
       case 'price_asc':
         list.sort((a, b) => a.price.compareTo(b.price));
@@ -310,10 +322,31 @@ class _HomeScreenState extends State<HomeScreen> {
             )
           : null,
       body: StreamBuilder<List<Product>>(
-        stream: ProductService().getProductsStream(),
+        stream: _productsStream,
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
+          // Chỉ hiển thị loading ở lần đầu khi chưa có bất kỳ dữ liệu nào
+          if (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.error_outline, size: 48, color: Colors.redAccent),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Lỗi kết nối cơ sở dữ liệu: ${snapshot.error}',
+                      style: const TextStyle(color: Colors.red),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            );
           }
 
           final allProducts = snapshot.data ?? [];
@@ -355,20 +388,47 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.inventory_2_outlined, size: 64, color: Colors.grey.shade400),
+                        Icon(
+                          _searchQuery.isNotEmpty
+                              ? Icons.search_off_rounded
+                              : Icons.inventory_2_outlined,
+                          size: 64,
+                          color: Colors.grey.shade400,
+                        ),
                         const SizedBox(height: 12),
                         Text(
                           _searchQuery.isNotEmpty
                               ? 'Không tìm thấy sản phẩm phù hợp với "$_searchQuery"'
                               : 'Chưa có sản phẩm nào trong cơ sở dữ liệu!',
-                          style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.grey.shade700,
+                          ),
                         ),
-                        const SizedBox(height: 12),
-                        ElevatedButton.icon(
-                          onPressed: _seedData,
-                          icon: const Icon(Icons.add),
-                          label: const Text('Nạp Dữ Liệu Mẫu Ngay'),
-                        ),
+                        const SizedBox(height: 8),
+                        if (_searchQuery.isNotEmpty) ...[
+                          Text(
+                            'Vui lòng thử lại với từ khóa khác hoặc xóa bộ lọc',
+                            style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+                          ),
+                          const SizedBox(height: 14),
+                          OutlinedButton.icon(
+                            onPressed: () {
+                              _searchController.clear();
+                              _searchFocusNode.requestFocus();
+                            },
+                            icon: const Icon(Icons.clear, size: 18),
+                            label: const Text('Xóa bộ lọc tìm kiếm'),
+                          ),
+                        ] else ...[
+                          const SizedBox(height: 12),
+                          ElevatedButton.icon(
+                            onPressed: _seedData,
+                            icon: const Icon(Icons.add),
+                            label: const Text('Nạp Dữ Liệu Mẫu Ngay'),
+                          ),
+                        ],
                       ],
                     ),
                   ),
@@ -479,13 +539,19 @@ class _HomeScreenState extends State<HomeScreen> {
               Expanded(
                 child: TextField(
                   controller: _searchController,
+                  focusNode: _searchFocusNode,
+                  textInputAction: TextInputAction.search,
                   decoration: InputDecoration(
                     hintText: 'Tìm kiếm sản phẩm theo tên...',
                     prefixIcon: const Icon(Icons.search, size: 20),
                     suffixIcon: _searchQuery.isNotEmpty
                         ? IconButton(
                             icon: const Icon(Icons.clear, size: 18),
-                            onPressed: () => _searchController.clear(),
+                            tooltip: 'Xóa tìm kiếm',
+                            onPressed: () {
+                              _searchController.clear();
+                              _searchFocusNode.requestFocus();
+                            },
                           )
                         : null,
                     isDense: true,

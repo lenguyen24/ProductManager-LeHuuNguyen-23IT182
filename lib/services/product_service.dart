@@ -76,15 +76,19 @@ class ProductService {
     ),
   ];
 
-  // Lấy Stream danh sách sản phẩm thời gian thực từ Firestore
+  Stream<List<Product>>? _productsStreamCache;
+
+  // Lấy Stream danh sách sản phẩm thời gian thực từ Firestore (sử dụng broadcast stream để không tạo kết nối mới khi rebuild)
   Stream<List<Product>> getProductsStream() {
     if (!_isFirebaseAvailable) {
       return Stream.value(List.unmodifiable(_mockProducts));
     }
 
-    return _productsRef.snapshots().map((snapshot) {
+    _productsStreamCache ??= _productsRef.snapshots().map((snapshot) {
       return snapshot.docs.map((doc) => Product.fromFirestore(doc)).toList();
-    });
+    }).asBroadcastStream();
+
+    return _productsStreamCache!;
   }
 
   // Thêm sản phẩm mới vào Firestore
