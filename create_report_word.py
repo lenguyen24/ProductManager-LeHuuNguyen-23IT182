@@ -210,6 +210,8 @@ def create_report():
     doc.add_paragraph()
     add_body("Khởi tạo dữ liệu mẫu ban đầu qua script seed_firestore.js để nạp các bản ghi chuẩn vào collection 'products'.")
     add_image_box("step4_firestore_db.png", "Cấu trúc dữ liệu Collection 'products' trên Cloud Firestore tuân thủ nghiêm ngặt 4 trường")
+    add_body("Giao diện quản lý trực tiếp cơ sở dữ liệu trên Firebase Console cho thấy collection 'products' với đầy đủ các bản ghi thực tế, mỗi tài liệu chỉ chứa duy nhất đúng 4 trường theo đề thi: name, price, soluong, image:")
+    add_image_box("step4_firestore_console_fixed.png", "Ảnh chụp trực tiếp CSDL Cloud Firestore trên Firebase Console (Collection 'products')")
 
     # -------------------------------------------------------------
     # BƯỚC 5: ĐĂNG NHẬP ADMIN TRÊN WEB
@@ -362,8 +364,8 @@ def create_report():
     submit_table.alignment = WD_TABLE_ALIGNMENT.CENTER
     links_data = [
         ("1. Link GitHub Source Code:", "https://github.com/lenguyen24/ProductManager-LeHuuNguyen-23IT182"),
-        ("2. Link Video Demo:", "https://youtu.be/demo-lehuunguyen-23it182 (hoặc xem trực tiếp qua liên kết đính kèm)"),
-        ("3. File Cơ sở dữ liệu (JSON):", "Đính kèm trực tiếp file products.json tại thư mục gốc repository"),
+        ("2. Link Video Demo:", "[Chèn link video YouTube / Google Drive demo của bạn vào đây]"),
+        ("3. File Cơ sở dữ liệu (JSON):", "https://github.com/lenguyen24/ProductManager-LeHuuNguyen-23IT182/blob/main/products.json"),
         ("4. File cài đặt ứng dụng (APK):", "product_manager.apk (nằm tại thư mục gốc dự án)")
     ]
     for row_idx, (col0, col1) in enumerate(links_data):
@@ -389,9 +391,13 @@ def create_report():
         set_cell_margins(c0, top=70, bottom=70, left=100, right=100)
         set_cell_margins(c1, top=70, bottom=70, left=100, right=100)
 
-    output_docx_v2 = os.path.join(root_dir, "BAO_CAO_GIUA_KY_LeHuuNguyen_23IT182_V2.docx")
-    doc.save(output_docx_v2)
-    print(f"Report generated successfully: {output_docx_v2}")
+    for filename in ["BAO_CAO_GIUA_KY_LeHuuNguyen_23IT182_FINAL.docx", "BAO_CAO_GIUA_KY_LeHuuNguyen_23IT182_V2.docx", "BAO_CAO_GIUA_KY_LeHuuNguyen_23IT182.docx"]:
+        out_p = os.path.join(root_dir, filename)
+        try:
+            doc.save(out_p)
+            print(f"Report saved: {out_p}")
+        except Exception as e:
+            print(f"Skipped {filename} (probably open in Word): {e}")
 
 if __name__ == "__main__":
     create_report()
