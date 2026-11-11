@@ -121,7 +121,7 @@ def create_report():
         p.add_run(text)
         return p
 
-    def add_image_box(filename, caption):
+    def add_image_box(filename, caption, width=Inches(6.0)):
         img_path = os.path.join(screenshots_dir, filename)
         if os.path.exists(img_path):
             p_img = doc.add_paragraph()
@@ -129,8 +129,7 @@ def create_report():
             p_img.paragraph_format.space_before = Pt(6)
             p_img.paragraph_format.space_after = Pt(2)
             run = p_img.add_run()
-            # Giới hạn chiều rộng ảnh để vừa trang Word chuẩn
-            run.add_picture(img_path, width=Inches(6.0))
+            run.add_picture(img_path, width=width)
 
             p_cap = doc.add_paragraph()
             p_cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -253,14 +252,15 @@ def create_report():
     # -------------------------------------------------------------
     # BƯỚC 9: ỨNG DỤNG TRÊN THIẾT BỊ DI ĐỘNG (MOBILE)
     # -------------------------------------------------------------
-    add_step_heading(9, "Ứng dụng trên nền tảng Di động (Mobile Android) (0.5 điểm)")
-    add_body("Ứng dụng được thiết kế tương thích hoàn hảo và tự động co giãn Responsive khi chạy trên thiết bị di động Android:")
+    add_step_heading(9, "Ứng dụng trên thiết bị di động (Mobile Android) (0.5 điểm)")
+    add_body("Ứng dụng được biên dịch và cài đặt trực tiếp trên thiết bị di động thật (Xiaomi Redmi Note 13 - Android 15, kết nối cáp USB qua giao thức ADB):")
     add_body("• Giao diện danh sách chuyển sang dạng Card trực quan, dễ thao tác vuốt chạm trên màn hình cảm ứng điện thoại.\n"
              "• Nút Thêm sản phẩm nổi (Floating Action Button) tiện lợi tại góc phải màn hình.\n"
              "• Chức năng Nhập hình ảnh trên di động: Hỗ trợ chọn ảnh từ Thư viện (Gallery) hoặc chụp ảnh trực tiếp từ Camera điện thoại thông qua plugin image_picker.\n"
              "• Đã đóng gói thành công file cài đặt: product_manager.apk sẵn sàng cài đặt và chạy trên điện thoại thật.")
-    add_image_box("step9_mobile_home.png", "Giao diện danh sách sản phẩm trên thiết bị di động Android")
-    add_image_box("step10_mobile_add.png", "Giao diện Thêm sản phẩm và nhập hình ảnh trên thiết bị di động")
+    add_image_box("step9_mobile_login_real.png", "Giao diện Đăng nhập quản trị viên trên màn hình điện thoại Android thật", width=Inches(3.2))
+    add_image_box("step9_mobile_home_real.png", "Giao diện Bảng điều khiển & Danh sách sản phẩm trên thiết bị di động thật", width=Inches(3.2))
+    add_image_box("step10_mobile_add_real.png", "Giao diện Hộp thoại Thêm sản phẩm & Nhập ảnh từ Camera/Gallery trên thiết bị thật", width=Inches(3.2))
 
     # -------------------------------------------------------------
     # BƯỚC 10: TRÍCH XUẤT CSDL RA FILE JSON
@@ -383,8 +383,15 @@ def create_report():
         set_cell_margins(c0, top=70, bottom=70, left=100, right=100)
         set_cell_margins(c1, top=70, bottom=70, left=100, right=100)
 
-    doc.save(output_docx)
-    print(f"Report generated successfully: {output_docx}")
+    output_docx_final = os.path.join(root_dir, "BAO_CAO_GIUA_KY_LeHuuNguyen_23IT182_FINAL.docx")
+    doc.save(output_docx_final)
+    print(f"Report generated successfully: {output_docx_final}")
+
+    try:
+        doc.save(output_docx)
+        print(f"Report updated successfully: {output_docx}")
+    except Exception as e:
+        print(f"Note: {output_docx} is currently opened in Word, saved to {output_docx_final} instead.")
 
 if __name__ == "__main__":
     create_report()
