@@ -59,4 +59,8 @@ app.*.map.json
 # Automation & tooling scripts
 *.py
 
+# Screenshots folder
+screenshots/
+
+
 
