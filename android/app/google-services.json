@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "826216045115",
+    "project_id": "express-backend-demo",
+    "storage_bucket": "express-backend-demo.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:826216045115:android:853322f42981e8902d5a1e",
+        "android_client_info": {
+          "package_name": "com.example.admin_user_manager"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBkBi7TgMwhGnbOMvn3qyPTthJv4lBT0cw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
