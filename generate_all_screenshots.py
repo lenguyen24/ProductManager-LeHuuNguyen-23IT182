@@ -41,11 +41,11 @@ try:
         page.screenshot(path=os.path.join(screenshots_dir, "step6_web_dashboard.png"))
         print("[2/5] Captured step6_web_dashboard.png")
 
-        # 3. Web Add Product Dialog (1280x800)
-        page.goto('http://localhost:8089/?screen=add')
+        # 3. Web Add Product Dialog WITH FILLED DATA & PREVIEW (1280x800)
+        page.goto('http://localhost:8089/?screen=add&filled=true')
         time.sleep(7)
         page.screenshot(path=os.path.join(screenshots_dir, "step7_web_add_product.png"))
-        print("[3/5] Captured step7_web_add_product.png")
+        print("[3/5] Captured step7_web_add_product.png (with filled data & preview)")
 
         # 4. Web Export JSON Dialog (1280x800)
         page.goto('http://localhost:8089/?screen=export')
@@ -60,11 +60,11 @@ try:
         mobile_page.screenshot(path=os.path.join(screenshots_dir, "step9_mobile_home.png"))
         print("[5/6] Captured step9_mobile_home.png")
 
-        # 6. Mobile Add Product Screen (390x844)
-        mobile_page.goto('http://localhost:8089/?screen=add')
+        # 6. Mobile Add Product Screen WITH FILLED DATA & PREVIEW (390x844)
+        mobile_page.goto('http://localhost:8089/?screen=add&filled=true')
         time.sleep(7)
         mobile_page.screenshot(path=os.path.join(screenshots_dir, "step10_mobile_add.png"))
-        print("[6/6] Captured step10_mobile_add.png")
+        print("[6/6] Captured step10_mobile_add.png (with filled data & preview)")
 
         browser.close()
 finally:

@@ -30,14 +30,24 @@ class _ProductFormDialogState extends State<ProductFormDialog> {
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.product?.name ?? '');
+    final shouldPrefill = kIsWeb && Uri.base.queryParameters['filled'] == 'true';
+    _nameController = TextEditingController(
+      text: widget.product?.name ?? (shouldPrefill ? 'Tai nghe Sony WH-1000XM5' : ''),
+    );
     _priceController = TextEditingController(
-      text: widget.product != null ? widget.product!.price.toStringAsFixed(0) : '',
+      text: widget.product != null
+          ? widget.product!.price.toStringAsFixed(0)
+          : (shouldPrefill ? '5990000' : ''),
     );
     _soluongController = TextEditingController(
-      text: widget.product != null ? widget.product!.soluong.toString() : '',
+      text: widget.product != null
+          ? widget.product!.soluong.toString()
+          : (shouldPrefill ? '15' : ''),
     );
-    _imageController = TextEditingController(text: widget.product?.image ?? '');
+    _imageController = TextEditingController(
+      text: widget.product?.image ??
+          (shouldPrefill ? 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500' : ''),
+    );
     _imageController.addListener(() {
       setState(() {});
     });
@@ -267,6 +277,18 @@ class _ProductFormDialogState extends State<ProductFormDialog> {
                     spacing: 8,
                     runSpacing: 8,
                     children: [
+                      OutlinedButton.icon(
+                        onPressed: () {
+                          setState(() {
+                            _nameController.text = 'Tai nghe Sony WH-1000XM5';
+                            _priceController.text = '5990000';
+                            _soluongController.text = '15';
+                            _imageController.text = 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500';
+                          });
+                        },
+                        icon: const Icon(Icons.auto_fix_high, size: 18, color: Colors.deepOrange),
+                        label: const Text('Điền mẫu nhanh'),
+                      ),
                       OutlinedButton.icon(
                         onPressed: () => _pickImage(ImageSource.gallery),
                         icon: const Icon(Icons.photo_library, size: 18),

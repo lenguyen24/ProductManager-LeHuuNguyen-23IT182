@@ -276,6 +276,12 @@ def create_report():
     
     json_snippet = """[
   {
+    "name": "Tai nghe Sony WH- 1000XM5",
+    "price": 5990000,
+    "soluong": 15,
+    "image": "data:image/jpeg;base64,...(Ảnh chụp thực tế từ điện thoại)"
+  },
+  {
     "name": "iPhone 15 Pro Max 256GB",
     "price": 29990000,
     "soluong": 25,
@@ -383,15 +389,9 @@ def create_report():
         set_cell_margins(c0, top=70, bottom=70, left=100, right=100)
         set_cell_margins(c1, top=70, bottom=70, left=100, right=100)
 
-    output_docx_final = os.path.join(root_dir, "BAO_CAO_GIUA_KY_LeHuuNguyen_23IT182_FINAL.docx")
-    doc.save(output_docx_final)
-    print(f"Report generated successfully: {output_docx_final}")
-
-    try:
-        doc.save(output_docx)
-        print(f"Report updated successfully: {output_docx}")
-    except Exception as e:
-        print(f"Note: {output_docx} is currently opened in Word, saved to {output_docx_final} instead.")
+    output_docx_v2 = os.path.join(root_dir, "BAO_CAO_GIUA_KY_LeHuuNguyen_23IT182_V2.docx")
+    doc.save(output_docx_v2)
+    print(f"Report generated successfully: {output_docx_v2}")
 
 if __name__ == "__main__":
     create_report()
